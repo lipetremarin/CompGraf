@@ -185,94 +185,6 @@ vector<float> parseObjToVertices(const string& filename) {
 }
 
 
-void readMaterialsFile(string filename, map<string, string>& properties)
-{
-	ifstream file(filename);
-
-	if (!file)
-	{
-		cout << "Unable to open the file: " << filename << endl;
-		return;
-	}
-
-	string line;
-
-	while (getline(file, line))
-	{
-		istringstream iss(line);
-		vector<string> row(istream_iterator<string>{iss}, istream_iterator<string>{});
-
-		if (row.empty())
-		{
-			continue;
-		}
-
-		properties[row[0]] = row[1];
-	}
-
-	file.close();
-}
-
-int loadTexture(string path)
-{
-	GLuint texID;
-
-	glGenTextures(1, &texID);
-	glBindTexture(GL_TEXTURE_2D, texID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-
-	if (data)
-	{
-		if (nrChannels == 3) //jpg, bmp
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		else //png
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		}
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return texID;
-}
-
-
-float stofOrElse(string value, float def)
-{
-	if (value.empty())
-	{
-		return def;
-	}
-
-	try
-	{
-		return stof(value);
-	}
-	catch (const exception& e)
-	{
-		cout << "Error converting string to float: " << e.what() << endl;
-		return def;
-	}
-}
-
-
 int main()
 {
 	glfwInit();
@@ -404,6 +316,95 @@ int main()
 
 	return 0;
 }
+
+void readMaterialsFile(string filename, map<string, string>& properties)
+{
+	ifstream file(filename);
+
+	if (!file)
+	{
+		cout << "Unable to open the file: " << filename << endl;
+		return;
+	}
+
+	string line;
+
+	while (getline(file, line))
+	{
+		istringstream iss(line);
+		vector<string> row(istream_iterator<string>{iss}, istream_iterator<string>{});
+
+		if (row.empty())
+		{
+			continue;
+		}
+
+		properties[row[0]] = row[1];
+	}
+
+	file.close();
+}
+
+int loadTexture(string path)
+{
+	GLuint texID;
+
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		if (nrChannels == 3) //jpg, bmp
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		}
+		else //png
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		}
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	stbi_image_free(data);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return texID;
+}
+
+
+float stofOrElse(string value, float def)
+{
+	if (value.empty())
+	{
+		return def;
+	}
+
+	try
+	{
+		return stof(value);
+	}
+	catch (const exception& e)
+	{
+		cout << "Error converting string to float: " << e.what() << endl;
+		return def;
+	}
+}
+
+
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
